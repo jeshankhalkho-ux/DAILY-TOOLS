@@ -6,128 +6,110 @@ import { initImageTool } from './tools/imageTools.js';
 import { initVideoTool } from './tools/videoTools.js';
 import { initTextTool } from './tools/textTools.js';
 import { initCryptoTool } from './tools/cryptoTools.js';
+import { initAiTool } from './tools/aiTools.js';
 
-// Define tools metadata
+// ======================== TOOLS REGISTRY ========================
 const TOOLS = [
+  // AI Tools
+  { id: 'ai-image-gen', name: 'AI Image Generator', desc: 'Create stunning images from text prompts with AI.', cat: 'ai', icon: '🎨', featured: true },
+  { id: 'ai-video-gen', name: 'AI Video Generator', desc: 'Generate short video clips from text descriptions.', cat: 'ai', icon: '🎬', featured: true },
+
   // Document Tools
-  { id: 'pdf-merger', name: 'PDF Merger', desc: 'Combine multiple PDF documents into a single file.', cat: 'doc' },
-  { id: 'pdf-splitter', name: 'PDF Splitter', desc: 'Extract pages or range of pages from your PDF file.', cat: 'doc' },
-  { id: 'pdf-compressor', name: 'PDF Compressor', desc: 'Downscale and compress PDF file sizes locally.', cat: 'doc' },
-  { id: 'pdf-to-image', name: 'PDF to Image', desc: 'Convert PDF pages into high quality PNG or JPEG images.', cat: 'doc' },
-  { id: 'image-to-pdf', name: 'Image to PDF', desc: 'Convert images (PNG, JPG) into structured PDF pages.', cat: 'doc' },
-  { id: 'pdf-protector', name: 'PDF Password Protector', desc: 'Secure your PDF files with encryption passwords.', cat: 'doc' },
-  { id: 'pdf-unlocker', name: 'PDF Unlocker', desc: 'Remove password restriction bounds from unlocked files.', cat: 'doc' },
+  { id: 'pdf-merger', name: 'PDF Merger', desc: 'Combine multiple PDFs into one file.', cat: 'doc', icon: '📑', featured: true },
+  { id: 'pdf-splitter', name: 'PDF Splitter', desc: 'Extract pages from your PDF.', cat: 'doc', icon: '✂️' },
+  { id: 'pdf-compressor', name: 'PDF Compressor', desc: 'Reduce PDF file size locally.', cat: 'doc', icon: '🗜️' },
+  { id: 'pdf-to-image', name: 'PDF to Image', desc: 'Convert PDF pages to PNG/JPEG.', cat: 'doc', icon: '🖼️', featured: true },
+  { id: 'image-to-pdf', name: 'Image to PDF', desc: 'Create PDF from images.', cat: 'doc', icon: '📄' },
+  { id: 'pdf-protector', name: 'PDF Password Protector', desc: 'Encrypt PDF with password.', cat: 'doc', icon: '🔐' },
+  { id: 'pdf-unlocker', name: 'PDF Unlocker', desc: 'Remove PDF password protection.', cat: 'doc', icon: '🔓' },
 
   // Image Tools
-  { id: 'image-resizer', name: 'Image Resizer', desc: 'Scale image dimensions keeping original aspect ratios.', cat: 'img' },
-  { id: 'image-compressor', name: 'Image Compressor', desc: 'Reduce image file sizes via quality percentage sliders.', cat: 'img' },
-  { id: 'bg-remover', name: 'Background Remover', desc: 'Erase color screens/backdrop weights transparently.', cat: 'img' },
-  { id: 'image-cropper', name: 'Image Cropper', desc: 'Crop custom bounds using interactive grab corners.', cat: 'img' },
-  { id: 'watermark-adder', name: 'Watermark Adder', desc: 'Overlay customizable text grids onto your photos.', cat: 'img' },
-  { id: 'image-converter', name: 'Format Converter', desc: 'Instantly convert JPG ↔ PNG ↔ WebP file layouts.', cat: 'img' },
-  { id: 'screenshot-beautifier', name: 'Screenshot Beautifier', desc: 'Wrap graphics inside beautiful browser/macOS device mockups.', cat: 'img' },
+  { id: 'image-resizer', name: 'Image Resizer', desc: 'Resize images with aspect lock.', cat: 'img', icon: '📐' },
+  { id: 'image-compressor', name: 'Image Compressor', desc: 'Compress image file size.', cat: 'img', icon: '📦', featured: true },
+  { id: 'bg-remover', name: 'Background Remover', desc: 'Remove image backgrounds.', cat: 'img', icon: '✨', featured: true },
+  { id: 'image-cropper', name: 'Image Cropper', desc: 'Crop images with presets.', cat: 'img', icon: '🔲' },
+  { id: 'watermark-adder', name: 'Watermark Adder', desc: 'Add text watermarks.', cat: 'img', icon: '💧' },
+  { id: 'image-converter', name: 'Format Converter', desc: 'Convert JPG ↔ PNG ↔ WebP.', cat: 'img', icon: '🔄' },
+  { id: 'screenshot-beautifier', name: 'Screenshot Beautifier', desc: 'Beautify screenshots with frames.', cat: 'img', icon: '💅' },
 
   // Video Tools
-  { id: 'video-compressor', name: 'Video Compressor', desc: 'Re-encode and shrink video bits locally in-browser.', cat: 'vid' },
-  { id: 'video-trimmer', name: 'Video Trimmer', desc: 'Trim duration ranges of video files via frame capture.', cat: 'vid' },
-  { id: 'video-to-gif', name: 'Video to GIF', desc: 'Sample video timestamps and render to animated GIF.', cat: 'vid' },
-  { id: 'audio-extractor', name: 'Audio Extractor', desc: 'Rip high fidelity WAV soundtracks from video clips.', cat: 'vid' },
-  { id: 'video-converter', name: 'Video Format Converter', desc: 'Record container changes from MP4 to WebM structures.', cat: 'vid' },
+  { id: 'video-compressor', name: 'Video Compressor', desc: 'Compress videos in-browser.', cat: 'vid', icon: '🎞️' },
+  { id: 'video-trimmer', name: 'Video Trimmer', desc: 'Trim video start/end.', cat: 'vid', icon: '✂️' },
+  { id: 'video-to-gif', name: 'Video to GIF', desc: 'Convert video to animated GIF.', cat: 'vid', icon: '🎠' },
+  { id: 'audio-extractor', name: 'Audio Extractor', desc: 'Extract audio from video.', cat: 'vid', icon: '🎵' },
+  { id: 'video-converter', name: 'Video Format Converter', desc: 'Convert video formats.', cat: 'vid', icon: '🔄' },
 
   // Text Tools
-  { id: 'word-counter', name: 'Word & Char Counter', desc: 'Analyze text statistics, word density, and reading speeds.', cat: 'txt' },
-  { id: 'case-converter', name: 'Case Converter', desc: 'Transform character cases to UPPER, camel, slug, etc.', cat: 'txt' },
-  { id: 'diff-checker', name: 'Text Diff Checker', desc: 'Compare text versions side-by-side highlighting lines.', cat: 'txt' },
-  { id: 'dup-remover', name: 'Duplicate Line Remover', desc: 'Filter out identical line blocks, sorting items.', cat: 'txt' },
-  { id: 'pass-generator', name: 'Password Generator', desc: 'Create strong passwords with customizable parameters.', cat: 'txt' },
-  { id: 'qr-generator', name: 'QR Code Generator', desc: 'Convert text, numbers or links into scannable QR cards.', cat: 'txt' },
-  { id: 'barcode-generator', name: 'Barcode Generator', desc: 'Generate standard CODE128 or EAN barcodes.', cat: 'txt' },
+  { id: 'word-counter', name: 'Word & Char Counter', desc: 'Count words, characters, lines.', cat: 'txt', icon: '🔢', featured: true },
+  { id: 'case-converter', name: 'Case Converter', desc: 'Convert text cases.', cat: 'txt', icon: '🔠' },
+  { id: 'diff-checker', name: 'Text Diff Checker', desc: 'Compare two texts side-by-side.', cat: 'txt', icon: '🔍' },
+  { id: 'dup-remover', name: 'Duplicate Line Remover', desc: 'Remove duplicate lines.', cat: 'txt', icon: '🧹' },
+  { id: 'pass-generator', name: 'Password Generator', desc: 'Generate strong passwords.', cat: 'txt', icon: '🔑' },
+  { id: 'qr-generator', name: 'QR Code Generator', desc: 'Generate QR codes.', cat: 'txt', icon: '📱', featured: true },
+  { id: 'barcode-generator', name: 'Barcode Generator', desc: 'Generate barcodes.', cat: 'txt', icon: '📊' },
 
   // Security Tools
-  { id: 'pass-strength', name: 'Password Strength Checker', desc: 'Estimate cracking speeds, entropy, and complexity metrics.', cat: 'sec' },
-  { id: 'hash-generator', name: 'Hash Generator', desc: 'Compute MD5, SHA-1, SHA-256 and SHA-512 values.', cat: 'sec' },
-  { id: 'hash-verifier', name: 'File Hash Verifier', desc: 'Compare hash signatures of local files for security.', cat: 'sec' },
-  { id: 'base64-codec', name: 'Base64 Encoder/Decoder', desc: 'Translate strings into safe base64 arrays.', cat: 'sec' },
-  { id: 'url-codec', name: 'URL Encoder/Decoder', desc: 'Escape or parse URL parameters seamlessly.', cat: 'sec' },
-  { id: 'jwt-decoder', name: 'JWT Decoder', desc: 'Inspect payloads, expiry times, and alg warning headers.', cat: 'sec' },
-  { id: 'aes-playground', name: 'Encryption Playground', desc: 'Secure messages using AES-GCM password encryptions.', cat: 'sec' }
+  { id: 'pass-strength', name: 'Password Strength', desc: 'Analyze password strength.', cat: 'sec', icon: '🛡️' },
+  { id: 'hash-generator', name: 'Hash Generator', desc: 'Generate MD5, SHA hashes.', cat: 'sec', icon: '#️⃣' },
+  { id: 'hash-verifier', name: 'File Hash Verifier', desc: 'Verify file hash signatures.', cat: 'sec', icon: '✅' },
+  { id: 'base64-codec', name: 'Base64 Encoder/Decoder', desc: 'Encode/decode Base64.', cat: 'sec', icon: '🔤' },
+  { id: 'url-codec', name: 'URL Encoder/Decoder', desc: 'Encode/decode URL params.', cat: 'sec', icon: '🔗' },
+  { id: 'jwt-decoder', name: 'JWT Decoder', desc: 'Decode & inspect JWT tokens.', cat: 'sec', icon: '🎟️' },
+  { id: 'aes-playground', name: 'Encryption Playground', desc: 'AES-GCM encrypt/decrypt.', cat: 'sec', icon: '🔒' }
 ];
 
-// App State
+const CATEGORIES = [
+  { id: 'ai', name: 'AI Tools', emoji: '🤖', color: 'ai' },
+  { id: 'doc', name: 'Document Tools', emoji: '📄', color: 'doc' },
+  { id: 'img', name: 'Image Tools', emoji: '🖼️', color: 'img' },
+  { id: 'vid', name: 'Video Tools', emoji: '🎥', color: 'vid' },
+  { id: 'txt', name: 'Text Tools', emoji: '✍️', color: 'txt' },
+  { id: 'sec', name: 'Security Tools', emoji: '🔒', color: 'sec' }
+];
+
+const SIDEBAR_ITEMS = [
+  { id: 'home', label: 'Home', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
+  { id: 'ai', label: 'AI', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10h16V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4Z"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>' },
+  { id: 'doc', label: 'Docs', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>' },
+  { id: 'img', label: 'Images', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>' },
+  { id: 'vid', label: 'Video', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>' },
+  { id: 'txt', label: 'Text', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>' },
+  { id: 'sec', label: 'Security', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' },
+];
+
+// ======================== APP STATE ========================
 let activeToolId = null;
-let currentTheme = localStorage.getItem('theme') || 'dark';
+let activeSection = 'home';
+let currentTheme = localStorage.getItem('omniforge-theme') || 'light';
 
-// DOM Elements
-const sidebarDocs = document.getElementById('navDocs');
-const sidebarImages = document.getElementById('navImages');
-const sidebarVideos = document.getElementById('navVideos');
-const sidebarText = document.getElementById('navText');
-const sidebarSecurity = document.getElementById('navSecurity');
+// ======================== DOM REFERENCES ========================
+const app = document.getElementById('app');
 
-const contentWrapper = document.getElementById('contentWrapper');
-const searchInput = document.getElementById('toolSearch');
-const topHeaderTitle = document.getElementById('topHeaderTitle');
-const themeToggle = document.getElementById('themeToggle');
-const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-const sidebar = document.getElementById('sidebar');
-
-// Progress Bar Container (will inject on top header if active)
-let globalProgressBar = null;
-
-// Initialize App
-function initApp() {
-  document.documentElement.setAttribute('data-theme', currentTheme);
-  updateThemeIcon();
-  
-  populateSidebar();
-  renderDashboard();
-
-  // Bind Listeners
-  searchInput.addEventListener('input', handleSearch);
-  themeToggle.addEventListener('click', toggleTheme);
-  
-  mobileMenuBtn.onclick = () => {
-    sidebar.classList.toggle('open');
-  };
-
-  // Close sidebar on mobile clicking item
-  document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== mobileMenuBtn) {
-      sidebar.classList.remove('open');
-    }
-  });
-
-  // Inject Progress Bar
-  const pBar = document.createElement('div');
-  pBar.className = 'progress-bar-container';
-  pBar.innerHTML = `<div class="progress-bar-fill" id="globalProgressFill"></div>`;
-  document.querySelector('.top-header').after(pBar);
-  globalProgressBar = pBar;
-}
-
-// Global App Utilities passed to tools
+// ======================== GLOBAL HELPERS ========================
 const HELPERS = {
   showProgress: (percent) => {
-    if (globalProgressBar) {
-      globalProgressBar.style.display = 'block';
-      globalProgressBar.querySelector('#globalProgressFill').style.width = `${percent}%`;
+    const bar = document.getElementById('globalProgressFill');
+    const container = document.getElementById('globalProgressBar');
+    if (bar && container) {
+      container.style.display = 'block';
+      bar.style.width = `${percent}%`;
     }
   },
   hideProgress: () => {
-    if (globalProgressBar) {
-      globalProgressBar.style.display = 'none';
-      globalProgressBar.querySelector('#globalProgressFill').style.width = '0%';
+    const bar = document.getElementById('globalProgressFill');
+    const container = document.getElementById('globalProgressBar');
+    if (bar && container) {
+      container.style.display = 'none';
+      bar.style.width = '0%';
     }
   },
   showToast: (message, type = 'success') => {
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
-    toast.style.borderLeft = `4px solid ${type === 'success' ? 'var(--cat-img)' : type === 'warning' ? 'var(--cat-sec)' : 'var(--cat-vid)'}`;
-    toast.innerHTML = `
-      <span style="font-weight: 600;">${message}</span>
-    `;
+    const borderColor = type === 'success' ? 'var(--accent-teal)' : type === 'warning' ? 'var(--accent-amber)' : 'var(--accent-coral)';
+    toast.style.borderLeft = `4px solid ${borderColor}`;
+    toast.innerHTML = `<span style="font-weight: 600; font-size: 0.88rem;">${message}</span>`;
     document.body.appendChild(toast);
-    
     setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(10px)';
@@ -155,135 +137,334 @@ const HELPERS = {
   },
   setupDragAndDrop: (dropzone, fileInput, callback) => {
     dropzone.onclick = () => fileInput.click();
-    
-    fileInput.onchange = () => {
-      if (fileInput.files.length > 0) {
-        callback(fileInput.files);
-      }
-    };
-
-    dropzone.ondragover = (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    };
-
-    dropzone.ondragleave = () => {
-      dropzone.classList.remove('dragover');
-    };
-
-    dropzone.ondrop = (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      if (e.dataTransfer.files.length > 0) {
-        callback(e.dataTransfer.files);
-      }
-    };
+    fileInput.onchange = () => { if (fileInput.files.length > 0) callback(fileInput.files); };
+    dropzone.ondragover = (e) => { e.preventDefault(); dropzone.classList.add('dragover'); };
+    dropzone.ondragleave = () => { dropzone.classList.remove('dragover'); };
+    dropzone.ondrop = (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); if (e.dataTransfer.files.length > 0) callback(e.dataTransfer.files); };
   },
-  escapeHtml: (str) => {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  },
+  escapeHtml: (str) => str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'),
   copyToClipboard: (text) => {
-    navigator.clipboard.writeText(text).then(() => {
-      HELPERS.showToast('Copied to clipboard!');
-    }).catch(err => {
-      HELPERS.showToast('Failed to copy: ' + err, 'error');
-    });
+    navigator.clipboard.writeText(text).then(() => HELPERS.showToast('Copied to clipboard!')).catch(err => HELPERS.showToast('Copy failed: ' + err, 'error'));
   },
   dataURLtoBlob: (dataurl) => {
-    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
+    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
     return new Blob([u8arr], { type: mime });
   }
 };
 
-// Populate Left Navigation Sidebar
-function populateSidebar() {
-  const categories = {
-    doc: sidebarDocs,
-    img: sidebarImages,
-    vid: sidebarVideos,
-    txt: sidebarText,
-    sec: sidebarSecurity
+// ======================== RENDER: APP SHELL ========================
+function renderAppShell() {
+  document.documentElement.setAttribute('data-theme', currentTheme);
+
+  app.innerHTML = `
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo" id="sidebarLogo" title="OmniForge">⚡</div>
+      <nav class="sidebar-nav" id="sidebarNav">
+        ${SIDEBAR_ITEMS.map(item => `
+          <button class="sidebar-item ${activeSection === item.id ? 'active' : ''}" data-section="${item.id}" title="${item.label}">
+            ${item.svg}
+            <span>${item.label}</span>
+          </button>
+        `).join('')}
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="sidebar-item" id="themeToggleBtn" title="Toggle Theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <span>Theme</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-viewport">
+      <div class="progress-bar-container" id="globalProgressBar">
+        <div class="progress-bar-fill" id="globalProgressFill"></div>
+      </div>
+      <div class="content-scroll" id="contentScroll"></div>
+    </div>
+  `;
+
+  // Sidebar event listeners
+  document.querySelectorAll('.sidebar-item[data-section]').forEach(btn => {
+    btn.onclick = () => {
+      const section = btn.getAttribute('data-section');
+      if (section === 'home') {
+        activeToolId = null;
+        activeSection = 'home';
+        renderDashboard();
+      } else {
+        activeSection = section;
+        activeToolId = null;
+        renderCategoryPage(section);
+      }
+      updateSidebarActive();
+    };
+  });
+
+  document.getElementById('sidebarLogo').onclick = () => {
+    activeToolId = null;
+    activeSection = 'home';
+    renderDashboard();
+    updateSidebarActive();
   };
 
-  // Reset structures
-  Object.values(categories).forEach(c => c.innerHTML = '');
+  document.getElementById('themeToggleBtn').onclick = toggleTheme;
+}
 
-  TOOLS.forEach((tool) => {
-    const li = document.createElement('li');
-    li.className = `nav-item ${activeToolId === tool.id ? 'active' : ''}`;
-    li.setAttribute('data-id', tool.id);
-    
-    // Choose categories visual highlights
-    let catDot = '🔵';
-    if (tool.cat === 'img') catDot = '🟢';
-    if (tool.cat === 'vid') catDot = '🔴';
-    if (tool.cat === 'txt') catDot = '🟣';
-    if (tool.cat === 'sec') catDot = '🟡';
-
-    li.innerHTML = `
-      <span>${catDot}</span>
-      <span>${tool.name}</span>
-    `;
-
-    li.onclick = () => {
-      loadTool(tool.id);
-      sidebar.classList.remove('open'); // close mobile sidebar
-    };
-
-    if (categories[tool.cat]) {
-      categories[tool.cat].appendChild(li);
-    }
+function updateSidebarActive() {
+  document.querySelectorAll('.sidebar-item[data-section]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-section') === activeSection);
   });
 }
 
-// Router to load tool layout
-function loadTool(toolId) {
-  activeToolId = toolId;
-  
-  // Update sidebar active highlights
-  document.querySelectorAll('.nav-item').forEach((item) => {
-    if (item.getAttribute('data-id') === toolId) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
-    }
-  });
+// ======================== RENDER: DASHBOARD ========================
+function renderDashboard() {
+  const contentScroll = document.getElementById('contentScroll');
+  const greeting = getGreeting();
 
-  const tool = TOOLS.find(t => t.id === toolId);
-  if (!tool) {
-    renderDashboard();
-    return;
-  }
+  const quickEditTools = TOOLS.filter(t => t.featured);
 
-  // Configure main layout title
-  topHeaderTitle.textContent = tool.name;
+  contentScroll.innerHTML = `
+    <div class="dashboard">
+      <!-- Hero -->
+      <div class="hero-section">
+        <p class="hero-greeting">${greeting}</p>
+        <h1 class="hero-title">How would you like to start?</h1>
+      </div>
 
-  contentWrapper.innerHTML = `
-    <div class="tool-view-header">
-      <button class="back-to-dashboard-btn" id="backToDashBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="5" y1="12" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back to Dashboard
-      </button>
-      <span class="quick-tag" style="background-color: var(--border-color); color: var(--text-muted); border-color: transparent;">Category: ${tool.cat.toUpperCase()}</span>
+      <!-- Search Bar -->
+      <div class="search-bar-wrapper">
+        <svg class="search-bar-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" class="search-bar" id="dashboardSearch" placeholder="Search 34+ tools... PDF, Image, Video, QR, Hash..." />
+      </div>
+
+      <!-- Starter Cards -->
+      <div class="starter-row" id="starterRow">
+        <div class="starter-card" data-tool="upload-trigger">
+          <div class="starter-card-icon">📂</div>
+          <span class="starter-card-title">Upload</span>
+        </div>
+        <div class="starter-card gradient-card gradient-coral" data-tool="ai-image-gen">
+          <div class="starter-card-icon">🎨</div>
+          <span class="starter-card-title">Generate Image</span>
+        </div>
+        <div class="starter-card gradient-card gradient-purple" data-tool="ai-video-gen">
+          <div class="starter-card-icon">🎬</div>
+          <span class="starter-card-title">Create Video</span>
+        </div>
+        <div class="starter-card gradient-card gradient-teal" data-section="img">
+          <div class="starter-card-icon">🖼️</div>
+          <span class="starter-card-title">Edit Photos</span>
+        </div>
+        <div class="starter-card gradient-card gradient-blue" data-section="doc">
+          <div class="starter-card-icon">📄</div>
+          <span class="starter-card-title">Documents</span>
+        </div>
+      </div>
+
+      <!-- Quick Edits -->
+      <div class="section-header">
+        <span class="section-title">Quick edits</span>
+        <span class="section-subtitle" id="viewAllQuickEdits">View all</span>
+      </div>
+      <div class="quick-edits-scroll" id="quickEditsScroll">
+        ${quickEditTools.map(tool => `
+          <div class="quick-edit-card" data-tool="${tool.id}">
+            <div class="quick-edit-thumbnail">${tool.icon}</div>
+            <span class="quick-edit-label">${tool.name}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- All Categories -->
+      <div id="categorySections">
+        ${CATEGORIES.map(cat => {
+          const tools = TOOLS.filter(t => t.cat === cat.id);
+          return `
+            <div class="category-section" data-cat="${cat.id}">
+              <div class="category-header">
+                <div class="category-icon ${cat.color}">${cat.emoji}</div>
+                <span class="category-name">${cat.name}</span>
+                <span class="category-count">${tools.length}</span>
+              </div>
+              <div class="tools-grid">
+                ${tools.map(tool => `
+                  <div class="tool-card ${tool.cat}" data-tool="${tool.id}">
+                    <div class="tool-card-icon">${tool.icon}</div>
+                    <div class="tool-card-body">
+                      <div class="tool-card-title">${tool.name}</div>
+                      <div class="tool-card-desc">${tool.desc}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
     </div>
-    <div class="tool-workspace" id="toolWorkspace"></div>
   `;
 
-  document.getElementById('backToDashBtn').onclick = () => renderDashboard();
+  // Event listeners
+  bindToolClicks(contentScroll);
+  bindSectionClicks(contentScroll);
+
+  // Search
+  const searchInput = document.getElementById('dashboardSearch');
+  searchInput.oninput = () => {
+    const q = searchInput.value.toLowerCase();
+    filterDashboard(q);
+  };
+
+  // View all quick edits
+  document.getElementById('viewAllQuickEdits').onclick = () => {
+    searchInput.value = '';
+    searchInput.focus();
+  };
+
+  // Upload trigger
+  const uploadCard = contentScroll.querySelector('[data-tool="upload-trigger"]');
+  if (uploadCard) {
+    uploadCard.onclick = (e) => {
+      e.stopPropagation();
+      // Create a file picker
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.onchange = () => {
+        if (input.files.length > 0) {
+          const file = input.files[0];
+          // Auto route based on file type
+          if (file.type === 'application/pdf') {
+            loadTool('pdf-merger');
+          } else if (file.type.startsWith('image/')) {
+            loadTool('image-compressor');
+          } else if (file.type.startsWith('video/')) {
+            loadTool('video-compressor');
+          } else {
+            HELPERS.showToast('Uploaded! Choose a tool to process your file.', 'warning');
+          }
+        }
+      };
+      input.click();
+    };
+  }
+}
+
+function filterDashboard(query) {
+  // Filter category sections
+  document.querySelectorAll('.category-section').forEach(section => {
+    const cards = section.querySelectorAll('.tool-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const toolId = card.getAttribute('data-tool');
+      const tool = TOOLS.find(t => t.id === toolId);
+      const matches = tool && (
+        tool.name.toLowerCase().includes(query) ||
+        tool.desc.toLowerCase().includes(query) ||
+        tool.cat.toLowerCase().includes(query)
+      );
+      card.style.display = matches || !query ? '' : 'none';
+      if (matches || !query) visibleCount++;
+    });
+
+    section.style.display = visibleCount > 0 || !query ? '' : 'none';
+  });
+
+  // Filter quick edits
+  document.querySelectorAll('.quick-edit-card').forEach(card => {
+    const toolId = card.getAttribute('data-tool');
+    const tool = TOOLS.find(t => t.id === toolId);
+    const matches = tool && (
+      tool.name.toLowerCase().includes(query) ||
+      tool.desc.toLowerCase().includes(query)
+    );
+    card.style.display = matches || !query ? '' : 'none';
+  });
+}
+
+// ======================== RENDER: CATEGORY PAGE ========================
+function renderCategoryPage(catId) {
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (!cat) return renderDashboard();
+
+  const tools = TOOLS.filter(t => t.cat === catId);
+  const contentScroll = document.getElementById('contentScroll');
+
+  contentScroll.innerHTML = `
+    <div class="dashboard">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 28px;">
+        <button class="back-btn" id="backHomeBtn">← Home</button>
+        <div class="category-icon ${cat.color}" style="width: 40px; height: 40px; font-size: 1.2rem;">${cat.emoji}</div>
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800;">${cat.name}</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">${tools.length} tools available</p>
+        </div>
+      </div>
+
+      <div class="tools-grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+        ${tools.map(tool => `
+          <div class="tool-card ${tool.cat}" data-tool="${tool.id}">
+            <div class="tool-card-icon" style="width: 44px; height: 44px; font-size: 1.3rem;">${tool.icon}</div>
+            <div class="tool-card-body">
+              <div class="tool-card-title">${tool.name}</div>
+              <div class="tool-card-desc">${tool.desc}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('backHomeBtn').onclick = () => {
+    activeSection = 'home';
+    renderDashboard();
+    updateSidebarActive();
+  };
+
+  bindToolClicks(contentScroll);
+}
+
+// ======================== RENDER: TOOL VIEW ========================
+function loadTool(toolId) {
+  activeToolId = toolId;
+  const tool = TOOLS.find(t => t.id === toolId);
+  if (!tool) return renderDashboard();
+
+  activeSection = tool.cat;
+  updateSidebarActive();
+
+  const contentScroll = document.getElementById('contentScroll');
+
+  contentScroll.innerHTML = `
+    <div class="tool-page">
+      <div class="tool-page-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="back-btn" id="backFromTool">← Back</button>
+          <span class="tool-page-title">${tool.icon} ${tool.name}</span>
+        </div>
+        <span style="font-size: 0.75rem; padding: 4px 12px; border-radius: var(--radius-full); background: var(--bg-input); color: var(--text-muted); font-weight: 600;">100% Local</span>
+      </div>
+      <div class="tool-workspace" id="toolWorkspace"></div>
+    </div>
+  `;
+
+  document.getElementById('backFromTool').onclick = () => {
+    activeToolId = null;
+    activeSection = 'home';
+    renderDashboard();
+    updateSidebarActive();
+  };
 
   const workspace = document.getElementById('toolWorkspace');
-  
-  // Delegate rendering based on tool metadata category
-  if (tool.cat === 'doc') {
+
+  // Delegate to correct tool module
+  if (tool.cat === 'ai') {
+    initAiTool(tool.id, workspace, HELPERS);
+  } else if (tool.cat === 'doc') {
     initDocumentTool(tool.id, workspace, HELPERS);
   } else if (tool.cat === 'img') {
     initImageTool(tool.id, workspace, HELPERS);
@@ -296,173 +477,56 @@ function loadTool(toolId) {
   }
 }
 
-// Render Dashboard layout
-function renderDashboard() {
-  activeToolId = null;
-  topHeaderTitle.textContent = 'Daily Tools Dashboard';
-  
-  // Clean active tags in sidebar
-  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-
-  contentWrapper.innerHTML = `
-    <div class="dashboard-view">
-      <div class="dashboard-hero">
-        <h1>Simplify Your Daily Tasks</h1>
-        <p>A curated collection of offline tools for documents, images, video compression, text editing, and hash encryptions. Everything runs locally in your sandbox.</p>
-      </div>
-
-      <!-- PDF / Document section -->
-      <section class="tool-category-section" id="dashCatDoc">
-        <div class="category-header">
-          <span class="category-title" style="color: var(--cat-doc);">📄 Document Tools</span>
-          <span class="category-badge cat-doc-bg" id="badgeDoc">7</span>
-        </div>
-        <div class="tools-grid" id="gridDocs"></div>
-      </section>
-
-      <!-- Images section -->
-      <section class="tool-category-section" id="dashCatImg">
-        <div class="category-header">
-          <span class="category-title" style="color: var(--cat-img);">🖼️ Image Tools</span>
-          <span class="category-badge cat-img-bg" id="badgeImg">7</span>
-        </div>
-        <div class="tools-grid" id="gridImages"></div>
-      </section>
-
-      <!-- Videos section -->
-      <section class="tool-category-section" id="dashCatVid">
-        <div class="category-header">
-          <span class="category-title" style="color: var(--cat-vid);">🎥 Video Tools</span>
-          <span class="category-badge cat-vid-bg" id="badgeVid">5</span>
-        </div>
-        <div class="tools-grid" id="gridVideos"></div>
-      </section>
-
-      <!-- Text section -->
-      <section class="tool-category-section" id="dashCatTxt">
-        <div class="category-header">
-          <span class="category-title" style="color: var(--cat-txt);">✍️ Text Tools</span>
-          <span class="category-badge cat-txt-bg" id="badgeTxt">7</span>
-        </div>
-        <div class="tools-grid" id="gridText"></div>
-      </section>
-
-      <!-- Security section -->
-      <section class="tool-category-section" id="dashCatSec">
-        <div class="category-header">
-          <span class="category-title" style="color: var(--cat-sec);">🔒 Security Tools</span>
-          <span class="category-badge cat-sec-bg" id="badgeSec">7</span>
-        </div>
-        <div class="tools-grid" id="gridSecurity"></div>
-      </section>
-    </div>
-  `;
-
-  // Draw Category Cards
-  renderGrid('doc', 'gridDocs', 'badgeDoc');
-  renderGrid('img', 'gridImages', 'badgeImg');
-  renderGrid('vid', 'gridVideos', 'badgeVid');
-  renderGrid('txt', 'gridText', 'badgeTxt');
-  renderGrid('sec', 'gridSecurity', 'badgeSec');
-}
-
-function renderGrid(category, gridId, badgeId, filterQuery = '') {
-  const grid = document.getElementById(gridId);
-  const badge = document.getElementById(badgeId);
-  if (!grid) return;
-
-  grid.innerHTML = '';
-  
-  const filtered = TOOLS.filter((tool) => {
-    const matchCat = tool.cat === category;
-    const matchQuery = tool.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
-                       tool.desc.toLowerCase().includes(filterQuery.toLowerCase());
-    return matchCat && matchQuery;
-  });
-
-  badge.textContent = filtered.length;
-  
-  // Hide section wrapper if empty grid
-  const wrapper = grid.closest('.tool-category-section');
-  if (filtered.length === 0) {
-    if (wrapper) wrapper.style.display = 'none';
-  } else {
-    if (wrapper) wrapper.style.display = 'flex';
-  }
-
-  filtered.forEach((tool) => {
-    const card = document.createElement('div');
-    card.className = `tool-card ${tool.cat}`;
-    
-    // Choose icon layout
-    let svgIcon = '📄';
-    if (tool.cat === 'img') svgIcon = '🖼️';
-    if (tool.cat === 'vid') svgIcon = '🎥';
-    if (tool.cat === 'txt') svgIcon = '✍️';
-    if (tool.cat === 'sec') svgIcon = '🔒';
-
-    card.innerHTML = `
-      <div class="tool-icon-wrapper">
-        <span style="font-size: 1.5rem;">${svgIcon}</span>
-      </div>
-      <h3>${tool.name}</h3>
-      <p>${tool.desc}</p>
-    `;
-
-    card.onclick = () => loadTool(tool.id);
-    grid.appendChild(card);
+// ======================== EVENT BINDING HELPERS ========================
+function bindToolClicks(container) {
+  container.querySelectorAll('[data-tool]').forEach(el => {
+    if (el.getAttribute('data-tool') === 'upload-trigger') return; // handled separately
+    el.onclick = () => loadTool(el.getAttribute('data-tool'));
   });
 }
 
-// Live Search logic
-function handleSearch() {
-  const query = searchInput.value.toLowerCase();
-  
-  // 1. Filter Sidebar Elements
-  const items = document.querySelectorAll('.nav-item');
-  items.forEach((item) => {
-    const toolText = item.textContent.toLowerCase();
-    if (toolText.includes(query)) {
-      item.style.display = 'flex';
-    } else {
-      item.style.display = 'none';
-    }
+function bindSectionClicks(container) {
+  container.querySelectorAll('[data-section]').forEach(el => {
+    if (el.classList.contains('sidebar-item')) return; // already handled
+    el.onclick = () => {
+      activeSection = el.getAttribute('data-section');
+      renderCategoryPage(activeSection);
+      updateSidebarActive();
+    };
   });
-
-  // 2. Filter sections titles in sidebar
-  document.querySelectorAll('.nav-section').forEach((sect) => {
-    const listItems = sect.querySelectorAll('.nav-item');
-    const hasVisible = Array.from(listItems).some(item => item.style.display !== 'none');
-    sect.style.display = hasVisible ? 'block' : 'none';
-  });
-
-  // 3. Filter Dashboard elements (if dashboard is open)
-  if (activeToolId === null) {
-    renderGrid('doc', 'gridDocs', 'badgeDoc', query);
-    renderGrid('img', 'gridImages', 'badgeImg', query);
-    renderGrid('vid', 'gridVideos', 'badgeVid', query);
-    renderGrid('txt', 'gridText', 'badgeTxt', query);
-    renderGrid('sec', 'gridSecurity', 'badgeSec', query);
-  }
 }
 
-// Theme management
+// ======================== THEME ========================
 function toggleTheme() {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', currentTheme);
-  localStorage.setItem('theme', currentTheme);
-  updateThemeIcon();
+  localStorage.setItem('omniforge-theme', currentTheme);
+
+  const themeBtn = document.getElementById('themeToggleBtn');
+  if (themeBtn) {
+    const icon = currentTheme === 'dark'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+    themeBtn.querySelector('svg').outerHTML = icon;
+  }
 }
 
-function updateThemeIcon() {
-  const darkIcon = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
-  `;
-  const lightIcon = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-  `;
-  themeToggle.innerHTML = currentTheme === 'dark' ? lightIcon : darkIcon;
+// ======================== UTILITIES ========================
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning ☀️';
+  if (hour < 17) return 'Good afternoon 🌤️';
+  return 'Good evening 🌙';
 }
 
-// Start app on DOMContentLoaded
-window.addEventListener('DOMContentLoaded', initApp);
+// ======================== INIT ========================
+function initApp() {
+  renderAppShell();
+  renderDashboard();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
