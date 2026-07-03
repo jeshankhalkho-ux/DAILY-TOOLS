@@ -999,3 +999,19 @@ body {
   max-width: 100%;
   height: auto;
 }
+
+.mode-btn {
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.mode-btn.active {
+  opacity: 1;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.mode-btn:not(.active) {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color);
+}

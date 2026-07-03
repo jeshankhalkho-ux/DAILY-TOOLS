@@ -311,56 +311,79 @@ function renderImageCompressor(container, helpers) {
   };
 }
 
-// 3. Background Remover (Chroma key / Color picker algorithm)
+// 3. Background Remover (Chroma key + AI)
 function renderBgRemover(container, helpers) {
   container.innerHTML = `
     <div class="tool-view">
       <div class="dropzone" id="bgDropzone">
         <svg class="dropzone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <span class="dropzone-text">Upload Image to Remove Background</span>
-        <span class="dropzone-subtext">Click on the background in preview to select the color to erase</span>
+        <span class="dropzone-subtext">Use AI or chroma key to erase backgrounds</span>
         <input type="file" id="bgFileInput" class="file-input" accept="image/*" />
       </div>
       
       <div id="bgConfig" style="display: none; margin-top: 20px;">
-        <div class="workspace-split">
-          <div>
-            <div class="file-item" style="margin-bottom: 20px;">
-              <div class="file-info">
-                <span class="file-name" id="bgFileName"></span>
+        <div class="mode-toggle" style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <button class="action-btn mode-btn active" id="modeChroma" style="flex:1; font-size:0.85rem; padding:10px;">Chroma Key</button>
+          <button class="action-btn mode-btn" id="modeAi" style="flex:1; font-size:0.85rem; padding:10px; background: linear-gradient(135deg, #4facfe, #00f2fe);">AI Remove BG</button>
+        </div>
+        
+        <!-- Chroma Key Controls -->
+        <div id="chromaControls">
+          <div class="workspace-split">
+            <div>
+              <div class="file-item" style="margin-bottom: 20px;">
+                <div class="file-info">
+                  <span class="file-name" id="bgFileName"></span>
+                </div>
+                <button class="btn-icon delete" id="clearBgFile">✕</button>
               </div>
-              <button class="btn-icon delete" id="clearBgFile">✕</button>
+              
+              <div class="control-group">
+                <div class="control-item">
+                  <label>Selected Background Color</label>
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="color" id="bgColorPicker" value="#ffffff" style="border: none; border-radius: 4px; width: 44px; height: 36px; cursor: pointer;" />
+                    <span id="colorHexText" style="font-family: var(--font-mono); font-size: 0.9rem;">#ffffff</span>
+                  </div>
+                </div>
+                <div class="control-item">
+                  <label>Tolerance (Color Distance)</label>
+                  <div class="slider-container">
+                    <input type="range" class="range-slider" id="bgTolerance" min="1" max="150" value="30" />
+                    <span class="slider-val" id="toleranceVal">30</span>
+                  </div>
+                </div>
+                <div class="control-item">
+                  <label>Edge Feather (Alpha Smoothness)</label>
+                  <div class="slider-container">
+                    <input type="range" class="range-slider" id="bgFeather" min="0" max="20" value="2" />
+                    <span class="slider-val" id="featherVal">2px</span>
+                  </div>
+                </div>
+                <button class="action-btn" id="bgRemoveBtn">Erase & Download PNG</button>
+              </div>
             </div>
             
-            <div class="control-group">
-              <div class="control-item">
-                <label>Selected Background Color</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                  <input type="color" id="bgColorPicker" value="#ffffff" style="border: none; border-radius: 4px; width: 44px; height: 36px; cursor: pointer;" />
-                  <span id="colorHexText" style="font-family: var(--font-mono); font-size: 0.9rem;">#ffffff</span>
-                </div>
-              </div>
-              <div class="control-item">
-                <label>Tolerance (Color Distance)</label>
-                <div class="slider-container">
-                  <input type="range" class="range-slider" id="bgTolerance" min="1" max="150" value="30" />
-                  <span class="slider-val" id="toleranceVal">30</span>
-                </div>
-              </div>
-              <div class="control-item">
-                <label>Edge Feather (Alpha Smoothness)</label>
-                <div class="slider-container">
-                  <input type="range" class="range-slider" id="bgFeather" min="0" max="20" value="2" />
-                  <span class="slider-val" id="featherVal">2px</span>
-                </div>
-              </div>
-              <button class="action-btn" id="bgRemoveBtn">Erase & Download PNG</button>
+            <div class="preview-container" style="flex-direction: column;">
+              <span class="dropzone-subtext" style="margin-bottom: 8px; font-weight:600;">Click on image below to eyedrop target background color:</span>
+              <canvas id="bgCanvas" style="max-width: 100%; height: auto; cursor: crosshair; background: repeating-conic-gradient(#808080 0% 25%, #c0c0c0 0% 50%) 50% / 20px 20px; border-radius: var(--radius-md);"></canvas>
             </div>
           </div>
-          
-          <div class="preview-container" style="flex-direction: column;">
-            <span class="dropzone-subtext" style="margin-bottom: 8px; font-weight:600;">Click on image below to eyedrop target background color:</span>
-            <canvas id="bgCanvas" style="max-width: 100%; height: auto; cursor: crosshair; background: repeating-conic-gradient(#808080 0% 25%, #c0c0c0 0% 50%) 50% / 20px 20px; border-radius: var(--radius-md);"></canvas>
+        </div>
+        
+        <!-- AI Controls -->
+        <div id="aiControls" style="display: none;">
+          <div style="text-align: center; padding: 24px;">
+            <p style="margin-bottom: 16px; color: var(--text-muted);">Powered by AI — sends image to remote API for processing</p>
+            <button class="action-btn" id="aiRemoveBtn" style="background: linear-gradient(135deg, #4facfe, #00f2fe); padding: 14px 32px; font-size: 1rem;">
+              <span id="aiBtnText">Remove Background with AI</span>
+            </button>
+            <div id="aiPreview" style="margin-top: 20px; display: none;">
+              <h4 style="margin-bottom: 8px;">Result:</h4>
+              <img id="aiResultImg" style="max-width: 100%; max-height: 400px; border-radius: var(--radius-md); background: repeating-conic-gradient(#808080 0% 25%, #c0c0c0 0% 50%) 50% / 20px 20px;" />
+              <button class="action-btn" id="aiDownloadBtn" style="margin-top: 12px;">Download PNG</button>
+            </div>
           </div>
         </div>
       </div>
@@ -381,9 +404,20 @@ function renderBgRemover(container, helpers) {
   const removeBtn = container.querySelector('#bgRemoveBtn');
   const canvas = container.querySelector('#bgCanvas');
   const ctx = canvas.getContext('2d');
+  const modeChroma = container.querySelector('#modeChroma');
+  const modeAi = container.querySelector('#modeAi');
+  const chromaControls = container.querySelector('#chromaControls');
+  const aiControls = container.querySelector('#aiControls');
+  const aiRemoveBtn = container.querySelector('#aiRemoveBtn');
+  const aiBtnText = container.querySelector('#aiBtnText');
+  const aiPreview = container.querySelector('#aiPreview');
+  const aiResultImg = container.querySelector('#aiResultImg');
+  const aiDownloadBtn = container.querySelector('#aiDownloadBtn');
 
   let activeImg = null;
   let activeFile = null;
+  let activeMode = 'chroma';
+  let aiResultBlob = null;
   let targetColor = { r: 255, g: 255, b: 255 };
 
   helpers.setupDragAndDrop(dropzone, fileInput, async (files) => {
@@ -396,12 +430,13 @@ function renderBgRemover(container, helpers) {
         dropzone.style.display = 'none';
         config.style.display = 'block';
         fileName.textContent = activeFile.name;
+        aiPreview.style.display = 'none';
+        aiResultBlob = null;
         
         canvas.width = activeImg.width;
         canvas.height = activeImg.height;
         ctx.drawImage(activeImg, 0, 0);
 
-        // Auto eyedrop color from top left corner
         const imgData = ctx.getImageData(2, 2, 1, 1).data;
         targetColor = { r: imgData[0], g: imgData[1], b: imgData[2] };
         updateColorDisplay(targetColor.r, targetColor.g, targetColor.b);
@@ -415,6 +450,25 @@ function renderBgRemover(container, helpers) {
     }
   });
 
+  // Mode switching
+  modeChroma.onclick = () => {
+    activeMode = 'chroma';
+    modeChroma.classList.add('active');
+    modeAi.classList.remove('active');
+    chromaControls.style.display = '';
+    aiControls.style.display = 'none';
+  };
+
+  modeAi.onclick = () => {
+    activeMode = 'ai';
+    modeAi.classList.add('active');
+    modeChroma.classList.remove('active');
+    chromaControls.style.display = 'none';
+    aiControls.style.display = '';
+    aiPreview.style.display = 'none';
+    aiResultBlob = null;
+  };
+
   canvas.onclick = (e) => {
     if (!activeImg) return;
     const rect = canvas.getBoundingClientRect();
@@ -423,7 +477,6 @@ function renderBgRemover(container, helpers) {
     const clickX = Math.floor((e.clientX - rect.left) * scaleX);
     const clickY = Math.floor((e.clientY - rect.top) * scaleY);
     
-    // Draw original image on temporary canvas to get raw color
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
@@ -451,6 +504,46 @@ function renderBgRemover(container, helpers) {
   featherSlider.oninput = () => {
     featherVal.textContent = `${featherSlider.value}px`;
     applyBackgroundRemoval();
+  };
+
+  // AI background removal
+  aiRemoveBtn.onclick = async () => {
+    if (!activeFile) return;
+    aiBtnText.textContent = 'Processing...';
+    aiRemoveBtn.disabled = true;
+    
+    try {
+      const formData = new FormData();
+      formData.append('image', activeFile);
+      
+      const response = await fetch('https://remove-bg-api-ten.vercel.app/remove-bg', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Server error');
+      }
+      
+      aiResultBlob = await response.blob();
+      const url = URL.createObjectURL(aiResultBlob);
+      aiResultImg.src = url;
+      aiPreview.style.display = '';
+      helpers.showToast('Background removed successfully!');
+    } catch (err) {
+      helpers.showToast('AI removal failed: ' + err.message, 'error');
+    } finally {
+      aiBtnText.textContent = 'Remove Background with AI';
+      aiRemoveBtn.disabled = false;
+    }
+  };
+
+  aiDownloadBtn.onclick = () => {
+    if (aiResultBlob) {
+      helpers.downloadFile(aiResultBlob, `${activeFile.name.split('.')[0]}_no_bg_ai.png`);
+      helpers.showToast('Downloaded!');
+    }
   };
 
   function hexToRgb(hex) {
@@ -494,14 +587,11 @@ function renderBgRemover(container, helpers) {
       const g = imgData[i + 1];
       const b = imgData[i + 2];
       
-      // Calculate Euclidean color distance
       const distance = Math.sqrt((r - tr) ** 2 + (g - tg) ** 2 + (b - tb) ** 2);
       
       if (distance < tolerance) {
-        // Transparent
         imgData[i + 3] = 0;
       } else if (distance < tolerance + feather) {
-        // Interpolate edge alpha
         const diff = distance - tolerance;
         const ratio = diff / feather;
         imgData[i + 3] = Math.round(ratio * 255);
@@ -514,9 +604,16 @@ function renderBgRemover(container, helpers) {
   clearBtn.onclick = () => {
     activeImg = null;
     activeFile = null;
+    activeMode = 'chroma';
+    aiResultBlob = null;
     dropzone.style.display = 'flex';
     config.style.display = 'none';
     fileInput.value = '';
+    aiPreview.style.display = 'none';
+    modeChroma.classList.add('active');
+    modeAi.classList.remove('active');
+    chromaControls.style.display = '';
+    aiControls.style.display = 'none';
   };
 
   removeBtn.onclick = () => {
