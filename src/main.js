@@ -405,10 +405,10 @@ function renderCategoryPage(catId) {
         </div>
       </div>
 
-      <div class="tools-grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+      <div class="tools-grid">
         ${tools.map(tool => `
           <div class="tool-card ${tool.cat}" data-tool="${tool.id}">
-            <div class="tool-card-icon" style="width: 44px; height: 44px; font-size: 1.3rem;">${tool.icon}</div>
+            <div class="tool-card-icon">${tool.icon}</div>
             <div class="tool-card-body">
               <div class="tool-card-title">${tool.name}</div>
               <div class="tool-card-desc">${tool.desc}</div>
