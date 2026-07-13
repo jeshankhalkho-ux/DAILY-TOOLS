@@ -100,6 +100,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -107,21 +109,26 @@ body {
   background-color: var(--bg-body);
   color: var(--text-primary);
   min-height: 100vh;
+  max-width: 100vw;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+  /* Prevent tap highlight on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 img { max-width: 100%; display: block; }
 button { cursor: pointer; font-family: inherit; }
-input, textarea, select { font-family: inherit; }
+input, textarea, select { font-family: inherit; max-width: 100%; }
 
 /* ======================== APP LAYOUT ======================== */
 #app {
   display: flex;
   min-height: 100vh;
   width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* ======================== SIDEBAR ======================== */
@@ -1168,6 +1175,18 @@ input, textarea, select { font-family: inherit; }
 
 /* ======================== RESPONSIVE / MOBILE ======================== */
 @media (max-width: 768px) {
+  /* Prevent ANY element from causing horizontal scroll */
+  *, *::before, *::after {
+    max-width: 100% !important;
+  }
+
+  /* Allow specific elements to scroll horizontally */
+  .starter-row,
+  .quick-edits-scroll,
+  .sidebar-nav {
+    max-width: none !important;
+  }
+
   .sidebar {
     position: fixed;
     bottom: 0;
@@ -1176,7 +1195,7 @@ input, textarea, select { font-family: inherit; }
     width: 100%;
     height: 64px;
     flex-direction: row;
-    padding: 4px 8px;
+    padding: 4px env(safe-area-inset-right, 8px) env(safe-area-inset-bottom, 4px) env(safe-area-inset-left, 8px);
     gap: 0;
     border-right: none;
     border-top: 1px solid var(--border);
@@ -1197,12 +1216,15 @@ input, textarea, select { font-family: inherit; }
     padding: 0 4px;
     flex: 1;
     justify-content: space-around;
+    scrollbar-width: none;
   }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
 
   .sidebar-item {
-    min-width: 56px;
+    min-width: 52px;
     padding: 6px 4px;
-    font-size: 0.58rem;
+    font-size: 0.56rem;
+    flex-shrink: 0;
   }
 
   .sidebar-item svg {
@@ -1215,37 +1237,86 @@ input, textarea, select { font-family: inherit; }
   .main-viewport {
     margin-left: 0;
     margin-bottom: 64px;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .content-scroll {
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .dashboard {
-    padding: 20px 16px 80px;
+    padding: 16px 12px 80px;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .hero-section {
-    padding: 24px 16px;
+    padding: 20px 12px;
+    border-radius: var(--radius-lg);
   }
 
   .hero-title {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
   }
 
   .starter-row {
-    gap: 10px;
+    gap: 8px;
   }
 
   .starter-card {
-    min-width: 130px;
-    height: 150px;
+    min-width: 120px;
+    height: 140px;
+    flex-shrink: 0;
   }
 
   .starter-card-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
   }
 
   .starter-card-title {
-    font-size: 0.78rem;
+    font-size: 0.75rem;
+  }
+
+  /* Tool workspace on mobile */
+  .tool-workspace {
+    padding: 16px 12px;
+    border-radius: var(--radius-lg);
+  }
+
+  .tool-page {
+    padding: 16px 12px 80px;
+    max-width: 100%;
+  }
+
+  .tool-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* Control rows stack vertically */
+  .control-row {
+    flex-direction: column;
+  }
+
+  .control-item {
+    min-width: unset;
+    width: 100%;
+  }
+
+  /* Hash outputs */
+  .hash-output-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .hash-value {
+    white-space: normal;
+    word-break: break-all;
   }
 
   .tools-grid {
